@@ -139,7 +139,7 @@ int		get_next_line(char **line)
 	static char	*saved;
 
 	r = 0;
-	while ((r = read(0, readed, BUFFER_SIZE) > 0))
+	while ((r = read(0, readed, BUFFER_SIZE)) > 0)
 	{
 		readed[r] = '\0';
 		if (!saved)
