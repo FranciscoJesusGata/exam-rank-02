@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/11 11:53:45 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/09/14 13:01:18 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/09/16 10:22:26 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,18 @@ size_t		ft_strlen(char *str)
 	return(i);
 }
 
-char		*ft_strchr(const char *s, int c)
+char		*ft_strchr(char *s, int c)
 {
 	size_t	i;
 
 	i = 0;
-	while (str[++i])
+	while (s[++i])
 	{
-		if (str[i] == c)
-			return(str[i]);
+		if (s[i] == c)
+			return(&s[i]);
 	}
-	if (!str[i] && !c)
-		return(str[i]);
+	if (!s[i] && !c)
+		return(&s[i]);
 	return(NULL);
 }
 
@@ -42,9 +42,10 @@ char		*ft_strdup(const char *s)
 	int	i;
 	char	*dup;
 
-	if (!(dup = malloc(ft_strlen(s) + 1)))
+	if (!(dup = malloc(ft_strlen((char *)s) + 1)))
 		return(NULL);
-	while (s[i])
+	i = 0;
+	while (s[i] != '\0')
 	{
 		dup[i] = s[i];
 		i++;
@@ -53,7 +54,7 @@ char		*ft_strdup(const char *s)
 	return(dup);
 }
 
-char		*ft_substr(const char *s, unsigned int start, size_t len)
+char		*ft_substr(char *s, unsigned int start, size_t len)
 {
 	size_t	i;
 	size_t	j;
@@ -63,7 +64,9 @@ char		*ft_substr(const char *s, unsigned int start, size_t len)
 		return(NULL);
 	if (start >= ft_strlen(s))
 		return(ft_strdup(""));
-	i = start
+	if(!(substr = malloc(len + 1)))
+		return(NULL);
+	i = start;
 	j = 0;
 	while (j < len && s[i])
 	{
@@ -75,7 +78,7 @@ char		*ft_substr(const char *s, unsigned int start, size_t len)
 	return(substr);
 }
 
-char		*ft_strjoin(const char *s1, const char *s2)
+char		*ft_strjoin(char *s1,char *s2)
 {
 	size_t	i;
 	size_t	j;
@@ -91,6 +94,7 @@ char		*ft_strjoin(const char *s1, const char *s2)
 		joined[i] = s1[i];
 		i++;
 	}
+	j = 0;
 	while(s2[j])
 	{
 		joined[i + j] = s2[j];
@@ -100,15 +104,55 @@ char		*ft_strjoin(const char *s1, const char *s2)
 	return(joined);
 }
 
+char		*get_line(char *saved, char **line, int r)
+{
+	char	*tmp;
+	int	i;
+	int	len;
+
+	if (r == 0 && !saved)
+	{
+		*line = ft_strdup("");
+		return (NULL);
+	}
+	else if (r == 0)
+	{
+		*line = saved;
+		return(NULL);
+	}
+	len = ft_strlen(saved);
+	i = 0;
+	while (saved[i] != '\n' && saved[i] != '\0')
+		i++;
+	*line = ft_substr(saved, 0, i);
+	tmp = ft_substr(saved, i, len);
+	free(saved);
+	saved = tmp;
+	tmp = NULL;
+	return(saved);
+}
+
 int		get_next_line(char **line)
 {
 	int	r;
 	char	readed[BUFFER_SIZE + 1];
 	static char	*saved;
 
+	r = 0;
 	while ((r = read(0, readed, BUFFER_SIZE) > 0))
 	{
-
+		readed[r] = '\0';
+		if (!saved)
+			saved = ft_strdup(readed);
+		else
+			saved = ft_strjoin(saved, readed);
+		if (ft_strchr(readed, '\n') || r < BUFFER_SIZE)
+			break ;
 	}
-
+	if (r < 0)
+		return (-1);
+	saved = get_line(saved, line, r);
+	if (r == 0 && !saved)
+		return (0);
+	return (1);	
 }
