@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/16 12:00:56 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/09/17 17:21:43 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/09/22 20:03:26 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,14 +60,44 @@ int	ft_printstr(int ap, int precision)
 	i = 0;
 	str = va_arg(ap, char *);
 	while (str[i])
-	{
-		if (precision < 0 && i == precision)
+	{	
+		if (precision == 1 && i == precision_l)
 			break ;
+		write(1, &str[i], 1);
 		i++;
 	}
 	return (i);
 }
 
+void	ft_putnbr(int nbr)
+{
+	char	c;
+
+	if (nbr < 0 && nbr > -2147483648)
+	{
+		write(1, "-", 1);
+		nbr *= -1;
+	}
+	else if (nbr > 9)
+		putnbr(nbr/10);
+	c = (nbr % 10) + '0';
+	write(1, &c, 1);
+}
+
+int	ft_printnbr(int ap, int *printed)
+{
+	int	nbr;
+
+	nbr = va_arg(ap, int);
+	if (nbr == -2147483648)
+		*printed += write(1, "-2147483648", 11);
+	else if (nbr < -2147483648)
+		*printed += write(1, "2147483647", 10);
+	else if (nbr >= 2147483647)
+		*printed += write(1, "2147483647", 10);
+	else
+		ft_putnbr(nbr);
+}
 
 void	ft_types(char type, int width, int precision, int ap, int *printed)
 {
@@ -83,18 +113,23 @@ void	ft_types(char type, int width, int precision, int ap, int *printed)
 		}
 	}
 	if (type == 's')
-		printed += ft_printstr(ap, precision);
+		ft_printstr(ap, precision, printed);
 	else if (type == 'd')
-		printed += ft_printdgt(ap, precision);
+		ft_printnbr(ap, printed);
 	else if (type == 'x')
-		printed += ft_printhex(ap, precision);
+		ft_printhex(ap, precision, printed);
 }
 
-void	ft_format(const char *format, int width, int precision, int ap, int *printed)
+void	ft_format(const char *format, int ap, int *printed)
 {
 	int	i;
+	int	width;
+	int	precision[2];
 
 	i = 0;
+	width = 0;
+	precision[0] = 0;
+	precision[1] = 0;
 	while (format[i])
 	{
 		if (format[i] != '%')
@@ -105,11 +140,13 @@ void	ft_format(const char *format, int width, int precision, int ap, int *printe
 			{
 				ft_types(format[i], width, precision, ap, printed);
 				width = 0;
-				precision = 0;
+				precision[0] = 0;
+				precision[1] = 0;
 			}
 			else if (ft_strchr("123456789", format[i]))
 				ft_width(format, &width, &i);
 			else if (format[i] == '.')
+				ft_precision(format, &precision[0], &precision[1], &i);
 		}
 		i++;
 	}
@@ -118,14 +155,10 @@ void	ft_format(const char *format, int width, int precision, int ap, int *printe
 int	ft_printf(const char *format, ...)
 {
 	va_list	ap;
-	int	width;
-	int	precision;
 	int	printed;
 
 	va_start(ap, format);
-	width = 0;
 	printed = 0;
-	precision = 0;
-	ft_format(format, width, precision, ap, &printed);	
+	ft_format(format, ap, &printed);	
 	return(printed);
 }
