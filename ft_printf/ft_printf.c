@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/16 12:00:56 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/09/23 13:16:04 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/09/24 10:15:19 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,6 @@ void	ft_printnbr(va_list ap, int precision[], int *printed)
 {
 	int	nbr;
 	int	len;
-	int	i;
 
 	nbr = va_arg(ap, int);
 	len = ft_nbrlen(nbr);
@@ -247,6 +246,7 @@ void	ft_format(const char *format, va_list ap, int *printed)
 			*printed += write(1, &format[i], 1);
 		else if (format[i] == '%')
 		{
+			i++;
 			if (ft_strchr("sdx", format[i]))
 			{
 				ft_types(format[i], width, precision, ap, printed);
