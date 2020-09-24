@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/16 12:00:56 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/09/24 10:15:19 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/09/24 20:12:03 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ void				ft_puthex(unsigned int nbr, int *printed)
 
 	c = 0;
 	h = 0;
-	if (nbr > 0)
+	if (nbr >= 0)
 	{
 		if (nbr > 16)
 			ft_puthex(nbr / 16, printed);
@@ -163,7 +163,7 @@ void				ft_puthex(unsigned int nbr, int *printed)
 		else if (h <= 9)
 			c = h + '0';
 		*printed += write(1, &c, 1);
-	}
+	}	
 }
 
 int		ft_hexlen(int n)
@@ -217,7 +217,7 @@ void	ft_types(char type, int width, int precision [], va_list ap, int *printed)
 void	ft_width(const char *format, int *width, int *i)
 {
 	*width = ft_atoi((char *)&format[*i]);
-	while (ft_strchr("123456789", format[*i]))
+	while (ft_strchr("0123456789", format[*i]))
 		*i += 1;
 }
 
@@ -225,7 +225,7 @@ void	ft_precision(const char *format, int *precision, int *p_len, int *i)
 {
 	*precision = 1;
 	*p_len = ft_atoi((char *)&format[*i]);
-	while (ft_strchr("123456789", format[*i]))
+	while (ft_strchr("0123456789", format[*i]))
 		*i += 1;
 }
 
@@ -246,18 +246,25 @@ void	ft_format(const char *format, va_list ap, int *printed)
 			*printed += write(1, &format[i], 1);
 		else if (format[i] == '%')
 		{
-			i++;
-			if (ft_strchr("sdx", format[i]))
+			while (1)
 			{
-				ft_types(format[i], width, precision, ap, printed);
-				width = 0;
-				precision[0] = 0;
-				precision[1] = 0;
+				i++;
+				if (ft_strchr("sdx", format[i]))
+				{
+					ft_types(format[i], width, precision, ap, printed);
+					width = 0;
+					precision[0] = 0;
+					precision[1] = 0;
+					break;
+				}
+				else if (ft_strchr("0123456789", format[i]))
+				{
+					ft_width(format, &width, &i);
+					i--;
+				}
+				else if (format[i] == '.')
+					ft_precision(format, &precision[0], &precision[1], &i);
 			}
-			else if (ft_strchr("123456789", format[i]))
-				ft_width(format, &width, &i);
-			else if (format[i] == '.')
-				ft_precision(format, &precision[0], &precision[1], &i);
 		}
 		i++;
 	}
