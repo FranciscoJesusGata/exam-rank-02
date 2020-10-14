@@ -5,309 +5,98 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/09/16 12:00:56 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/09/24 20:57:41 by fgata-va         ###   ########.fr       */
+/*   Created: 2020/10/13 19:23:51 by fgata-va          #+#    #+#             */
+/*   Updated: 2020/10/13 20:40:28 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	ft_strlen(char *s)
+int		ft_strlen(char *s)
 {
-	int i;
-
-	i = 0;
-	while(s[i])
-		i++;
-	return(i);
+	int i = 0;
+	while(s[++i]);
+	return i;
 }
 
-char	*ft_strchr(const char *s, int c)
+void	ft_putnbr(int n, char *base, int *printed)
 {
-	int	i;
-
-	i = 0;
-	while(s[i])
-	{
-		if(s[i] == c)
-			return((char *)s + i);
-		i++;
-	}
-	if(s[i] == c)
-		return((char *)s + i);
-	return(NULL);
+	int	len = ft_strlen(base);
+	int	c = 0;
+	if (n >= len)
+		ft_putnbr(n/len, base, printed);
+	c = n % len;
+	*printed += write(1, (base + c), 1);
 }
 
-int		ft_atoi(const char *str)
+void	ft_nbrlen(int n, int base_len)
 {
-	int	i;
-	int	nbr;
-	int	n;
+	int	i = 1;
 
-	i = 0;
-	nbr = 0;
-	n = 1;
-	while ((str[i] >= 9 && str[i] <= 13) || str[i] == ' ')
-		i++;
-	if (str[i] == '-' || str[i] == '+')
+	while(n > base_len)
 	{
-		if (str[i] == '-')
-			n *= -1;
+		n /= base_len;
 		i++;
 	}
-	while(str[i] >= 48 && str[i] <= 57)
-	{
-		nbr = (nbr * 10) + (str[i] - '0');
-		i++;
-	}
-	return((int)nbr * n);
+	return i;
 }
 
-int		ft_printwidth(int len)
+int		ft_printf(const char *f, ...)
 {
-	int	i;
-	i = 0;
-	while (i < len)
+	va_list ap;
+	int	i = 0;
+	int	printed = 0;
+	int	len = 0;
+	int	n = 0;
+	unsigned int	h = 0;
+	char *str = NULL;
+	int	w = 0;
+	int p = 0;
+	int p_l = 0;
+
+	va_start(ap, f);
+	while (f[i])
 	{
-		write(1, " ", 1);
-		i++;
-	}
-	return(len);
-}
-
-int			ft_putstr(const char *str, int precision[])
-{
-	int		i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (precision[0] == 1 && i > precision[1])
-			break ;
-		write(1, &str[i], 1);
-		i++;
-	}
-	return (i);
-}
-
-void		ft_printstr(va_list ap, int width, int precision[], int *printed)
-{
-	char	*str;
-	int	len;
-
-	str = va_arg(ap, char *);
-	if (!str)
-	{
-		len = 6;
-		if (width > len)
-			*printed += ft_printwidth(precision[1] - len);
-		*printed += ft_putstr("(null)", precision);
-	}
-	else
-	{
-		len = ft_strlen(str);
-		if (width > len)
-			*printed += ft_printwidth(precision[1] - len);
-		*printed += ft_putstr(str, precision);
-
-	}
-}
-
-int		ft_nbrlen(int nbr)
-{
-	int	i;
-
-	if (nbr <= 9)
-		return(1);
-	i = 0;
-	while (nbr > 0)
-	{
-		nbr /= 10;
-		i++;
-	}
-	return (i);
-}
-
-void	ft_putnbr(int nbr, int *printed)
-{
-	char	c;
-
-	if (nbr > 9)
-		ft_putnbr(nbr/10, printed);
-	c = (nbr % 10) + '0';
-	*printed += write(1, &c, 1);
-}
-
-int		ft_printzero(int len)
-{
-	int	i;
-
-	i = 0;
-	while (i < len)
-	{
-		write(1, "0", 1);
-		i++;
-	}
-	return(len);
-}
-
-
-void	ft_printnbr(va_list ap, int width, int precision[], int *printed)
-{
-	int	nbr;
-	int	len;
-
-	nbr = va_arg(ap, int);
-	len = ft_nbrlen(nbr);
-	if (nbr < 0 && nbr > -2147483648)
-	{
-		*printed += write(1, "-", 1);
-		nbr *= -1;
-	}
-	else if (nbr == -2147483648)
-	{
-		*printed += write(1, "-", 1);
-		if (precision[0] == 1 && precision[1] > len)
-			*printed += ft_printzero(precision[1] - len);
-		*printed += write(1, "2147483648", 10);
-	}
-	else
-	{
-		if (precision[0] == 1 && precision[1] > len)
-			*printed += ft_printzero(precision[1] - len);
-		if (width > len)
-			*printed += ft_printwidth(width - len);
-		if (nbr < -2147483648)
-			*printed += write(1, "2147483647", 10);
-		else if (nbr >= 2147483647)
-			*printed += write(1, "2147483647", 10);
+		if (f[i] != '%')
+			printed += write(1, (f + i), 1);
 		else
-			ft_putnbr(nbr, printed);
-	}
-}
-
-void				ft_puthex(unsigned int nbr, int *printed)
-{
-	char			c;
-	unsigned int	h;
-
-	c = 0;
-	h = 0;
-	if (nbr >= 0)
-	{
-		if (nbr > 16)
-			ft_puthex(nbr / 16, printed);
-		h = nbr % 16;
-		if(h > 9)
-			c = (h - 10) + 'a';
-		else if (h <= 9)
-			c = h + '0';
-		*printed += write(1, &c, 1);
-	}	
-}
-
-int		ft_hexlen(int n)
-{
-	int	i;
-
-	i = 1;
-	while(n > 0)
-	{
-		n /= 16;
-		i++;
-	}
-	return(i);
-}
-
-void	ft_printhex(va_list ap, int width, int precision[], int *printed)
-{
-	int len;
-	int nbr;
-
-	nbr = va_arg(ap, int);
-	if (nbr < 0)
-		nbr *= -1;
-	len = ft_hexlen(nbr);
-	if (precision[0] == 1 && precision[1] > len)
-		*printed += ft_printzero(precision[1] - len);
-	if (width > len)
-		*printed += ft_printwidth(width - len);
-	ft_puthex(nbr, printed);
-}
-
-void	ft_types(char type, int width, int precision [], va_list ap, int *printed)
-{
-	if (type == 's')
-		ft_printstr(ap, width, precision, printed);
-	else if (type == 'd')
-		ft_printnbr(ap, width, precision, printed);
-	else if (type == 'x')
-		ft_printhex(ap, width, precision, printed);
-}
-
-void	ft_width(const char *format, int *width, int *i)
-{
-	*width = ft_atoi(format + *i);
-	while (ft_strchr("0123456789", format[*i]))
-		*i += 1;
-}
-
-void	ft_precision(const char *format, int *precision, int *p_len, int *i)
-{
-	*precision = 1;
-	*p_len = ft_atoi((char *)&format[*i]);
-	while (ft_strchr("0123456789", format[*i]))
-		*i += 1;
-}
-
-
-void	ft_format(const char *format, va_list ap, int *printed)
-{
-	int	i;
-	int	width;
-	int	precision[2];
-
-	i = 0;
-	width = 0;
-	precision[0] = 0;
-	precision[1] = 0;
-	while (format[i])
-	{
-		if (format[i] != '%')
-			*printed += write(1, &format[i], 1);
-		else if (format[i] == '%')
 		{
-			while (1)
+			while(f[i])
 			{
 				i++;
-				if (ft_strchr("sdx", format[i]))
+				if (f[i] == 's')
 				{
-					ft_types(format[i], width, precision, ap, printed);
-					width = 0;
-					precision[0] = 0;
-					precision[1] = 0;
-					break;
+					str = va_arg(ap, char *);
+					if (!str)
+						len = 6;
+					else
+						len = ft_strlen(str);
+					if (p == 1 && p_l < len)
+						len -= p_l;
 				}
-				else if (ft_strchr("0123456789", format[i]))
+				while (w > len)
 				{
-					ft_width(format, &width, &i);
-					i--;
+					printed += write(1, " ", 1);
+					w--;
 				}
-				else if (format[i] == '.')
-					ft_precision(format, &precision[0], &precision[1], &i);
+				if (f[i] == 's')
+				{
+					if(!str)
+						printed += write(1, "(null)", len);
+					else
+						printed += write(1, str, len);
+				}
+				else
+				{
+					if (f[i] == 'd')
+						
+					else if (f[i] == 'x')
+						
+				}
+				p = 0;
+				p_l = 0;
 			}
 		}
 		i++;
 	}
-}
-
-int	ft_printf(const char *format, ...)
-{
-	va_list	ap;
-	int	printed;
-
-	va_start(ap, format);
-	printed = 0;
-	ft_format(format, ap, &printed);
-	return(printed);
 }
