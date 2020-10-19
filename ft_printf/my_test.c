@@ -73,6 +73,22 @@ int		main(void)
 	ORIGINAL("%0d\n", 42);
 	MINE("%3d\n", 42);
 	ORIGINAL("%3d\n", 42);
+	MINE("%10d\n", 42);
+	ORIGINAL("%10d\n", 42);
+	MINE("%0.0d\n", 42);
+	ORIGINAL("%0.0d\n", 42);
+	MINE("%0.3d\n", 42);
+	ORIGINAL("%0.3d\n", 42);
+	MINE("%0.10d\n", 42);
+	ORIGINAL("%0.10d\n", 42);
+	MINE("%3.0d\n", 42);
+	ORIGINAL("%3.0d\n", 42);
+	MINE("%10.0d\n", 42);
+	ORIGINAL("%10.0d\n", 42);
+	MINE("%3.3d\n", 42);
+	ORIGINAL("%3.3d\n", 42);
+	MINE("%10.10d\n", 42);
+	ORIGINAL("%10.10d\n", 42);
 	printf("\nft_printf wrote: %d\nprintf wrote: %d\n", printed, original);
 
 }

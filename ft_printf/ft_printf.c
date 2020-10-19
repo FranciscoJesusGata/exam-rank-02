@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/13 19:23:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/10/15 13:35:08 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/10/19 18:20:29 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 int		ft_strlen(char *s)
 {
 	int i = 0;
-	while(s[++i]);
+	while(s[i] != '\0')
+		i++;
 	return i;
 }
 
@@ -33,7 +34,7 @@ int	ft_nbrlen(long int n, int base_len)
 {
 	int	i = 1;
 
-	while(n > base_len)
+	while(n > base_len - 1)
 	{
 		n /= base_len;
 		i++;
@@ -66,6 +67,7 @@ int		ft_printf(const char *f, ...)
 			p = 0;
 			p_l = 0;
 			w = 0;
+			len = 0;
 			while(f[i])
 			{
 				i++;
@@ -82,6 +84,15 @@ int		ft_printf(const char *f, ...)
 				else if (f[i] == 'd')
 				{
 					n = va_arg(ap, long int);
+					if (n > INT_MAX)
+						n = INT_MIN;
+					else if (n < INT_MIN)
+						n = INT_MAX;
+					if (n < 0)
+					{
+						printed += write(1, "-", 1);
+						n *= -1;
+					}
 					len = ft_nbrlen(n, 10);
 				}
 				else if (f[i] == 'x')
@@ -89,29 +100,63 @@ int		ft_printf(const char *f, ...)
 					h = va_arg(ap, unsigned int);
 					len = ft_nbrlen(n, 16);
 				}
-				while (w > len)
+				else if (f[i] >= 48 && f[i] <= 57)
 				{
-					printed += write(1, " ", 1);
-					w--;
+					while(f[i] >= 48 && f[i] <= 57)
+					{
+						w *= 10;
+						w += (f[i] - '0');
+						i++;
+					}
+					i--;
+				}
+				else if (f[i] == '.')
+				{
+					i++;
+					p = 1;
+					while(f[i] >= 48 && f[i] <= 57)
+					{
+						p_l *= 10;
+						p_l += (f[i] - '0');
+						i++;
+					}
+					i--;
 				}
 				if (f[i] == 's')
 				{
+					while (w > len)
+					{
+						printed += write(1, " ", 1);
+						w--;
+					}
 					if(!str)
 						printed += write(1, "(null)", len);
-					else
+					else if (len > 0)
 						printed += write(1, str, len);
+					break ;
 				}
-				else
+				else if (f[i] == 'd' || f[i] == 'x')
 				{
-					while (p == 1 && p_l > len)
+					if (p == 1)
 					{
-						write(1, "0", 1);
-						p_l--;
+						if(p_l >= w && p_l > len)
+							w -= p_l;
+						while (p_l > len)
+						{
+							printed += write(1, "0", 1);
+							p_l--;
+						}
 					}
-					if (f[i] == 'd' && (n > 0 && p == 1 && p_l > 0))
+					while (w > len)
+					{
+						printed += write(1, " ", 1);
+						w--;
+					}
+					if (f[i] == 'd')
 						ft_putnbr(n, dec, &printed);
 					else if (f[i] == 'x')
 						ft_putnbr(h, hex, &printed);
+					break ;
 				}
 			}
 		}
