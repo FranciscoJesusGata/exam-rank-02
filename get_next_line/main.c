@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/10 18:49:32 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/09/10 18:54:43 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/10/20 12:06:03 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,14 @@ int		main(void)
 	int	gnl;
 
 	line = NULL;
-	while((gnl = get_next_line(&line)) == 1)
+	while((gnl = get_next_line(&line)) > 0)
 	{
-		printf("%s", line);
+		printf("%s\n", line);
+		free(line);
+		line = NULL;
 	}
-	printf("%s", line);
+	printf("%s\n", line);
 	free(line);
+	line = NULL;
 	return (0);
 }
