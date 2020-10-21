@@ -6,7 +6,7 @@
 /*   By: fgata-va <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/20 09:50:36 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/10/20 12:07:06 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/10/21 11:28:55 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,16 +44,17 @@ char	*ft_add_char(char *s, char c)
 int		get_next_line(char **line)
 {
 	int r;
-	char buff[2];
+	char *buff = malloc(2);
 
 	if (!line || !(*line = malloc(sizeof(char))))
 		return (-1);
 	buff[1] = '\0';
-	while ((r = read(0, buff, 1)) == 1)
+	while ((r = read(0, buff, 1)) > 0)
 	{
-		if (buff[0] == '\n' || buff[0] == '\0')
+		if (buff[0] == '\n')
 			break ;
-		*line = ft_add_char(*line, buff[0]);
+		*line = ft_add_char(*line, *buff);
 	}
+	free(buff);
 	return (r);
 }
