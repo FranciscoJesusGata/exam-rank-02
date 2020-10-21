@@ -6,7 +6,7 @@
 /*   By: fgata-va <fgata-va@student.42madrid.c      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/13 19:23:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/10/19 18:20:29 by fgata-va         ###   ########.fr       */
+/*   Updated: 2020/10/21 21:59:16 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,12 @@ int		ft_printf(const char *f, ...)
 					else
 						len = ft_strlen(str);
 					if (p == 1 && p_l < len)
-						len -= p_l;
+					{
+						if (p_l == 0)
+							len = 0;
+						else
+							len -= p_l;
+					}
 				}
 				else if (f[i] == 'd')
 				{
@@ -152,7 +157,7 @@ int		ft_printf(const char *f, ...)
 						printed += write(1, " ", 1);
 						w--;
 					}
-					if (f[i] == 'd')
+					if (f[i] == 'd' && !(n == 0 && p == 1 && p_l == 0))
 						ft_putnbr(n, dec, &printed);
 					else if (f[i] == 'x')
 						ft_putnbr(h, hex, &printed);
