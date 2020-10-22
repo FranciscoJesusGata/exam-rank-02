@@ -83,6 +83,7 @@ int		ft_printf(const char *f, ...)
 					if (!str)
 						str = "(null)";
 					len = ft_strlen(str);
+					total_len = len;
 					if (p == 1 && p_l < len)
 					{
 						len = p_l;
