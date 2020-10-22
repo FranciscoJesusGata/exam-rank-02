@@ -57,7 +57,8 @@ int		ft_printf(const char *f, ...)
 	int base_len = 0;
 	long int	n = 0;
 	unsigned int	h = 0;
-	char *str;
+	long int 	num = 0;
+	char *str = NULL;
 	int	w = 0;
 	int p = 0;
 	int p_l = 0;
@@ -74,6 +75,7 @@ int		ft_printf(const char *f, ...)
 			w = 0;
 			len = 0;
 			total_len = 0;
+			num = 0;
 			while(f[i])
 			{
 				i++;
@@ -105,21 +107,26 @@ int		ft_printf(const char *f, ...)
 						}
 						base_len = 10;
 						base = dec;
+						num = n;
 					}
 					else if (f[i] == 'x')
 					{
 						h = va_arg(ap, int);
 						base_len = 16;
 						base = hex;
+						num = h;
 					}
 					len = ft_nbrlen(n, base_len);
 					total_len = len;
 					if (p == 1)
 					{
 						if (p_l == 0 && h == 0 && n == 0)
+						{
 							len = 0;
+							total_len = 0;
+						}
 						else if(p_l > len)
-							total_len += p_l;
+							total_len = p_l;
 					}
 				}
 				else if (f[i] >= 48 && f[i] <= 57)
@@ -131,6 +138,7 @@ int		ft_printf(const char *f, ...)
 						i++;
 					}
 					i--;
+					continue ;
 				}
 				else if (f[i] == '.')
 				{
@@ -143,29 +151,31 @@ int		ft_printf(const char *f, ...)
 						i++;
 					}
 					i--;
+					continue ;
 				}
 				while (w > total_len)
 				{
 					printed += write(1, " ", 1);
 					w--;
 				}
-				if (len > 0)
+				if (f[i] == 's')
 				{
-					if (f[i] == 's')
-					{
+					if(len > 0)
 						printed += write(1, str, len);
-						break ;
-					}
-					else if (f[i] == 'd' || f[i] == 'x')
+					break ;
+				}
+				else if (f[i] == 'd' || f[i] == 'x')
+				{
+					while (p_l > len)
 					{
-						while (p_l > len)
-						{
-							printed += write(1, "0", 1);
-							p_l--;
-						}
-						ft_putnbr(h, base, &printed);
-						break ;
+						printed += write(1, "0", 1);
+						p_l--;
 					}
+					if (f[i] == 'd' && len > 0)
+						ft_putnbr(n, base, &printed);
+					else if (f[i] == 'x' && len > 0)
+						ft_putnbr(h, base, &printed);
+					break ;
 				}
 			}
 		}
