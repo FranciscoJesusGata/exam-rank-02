@@ -57,7 +57,6 @@ int		ft_printf(const char *f, ...)
 	int base_len = 0;
 	long int	n = 0;
 	unsigned int	h = 0;
-	long int 	num = 0;
 	char *str = NULL;
 	int	w = 0;
 	int p = 0;
@@ -75,7 +74,6 @@ int		ft_printf(const char *f, ...)
 			w = 0;
 			len = 0;
 			total_len = 0;
-			num = 0;
 			while(f[i])
 			{
 				i++;
@@ -107,16 +105,15 @@ int		ft_printf(const char *f, ...)
 						}
 						base_len = 10;
 						base = dec;
-						num = n;
+						len = ft_nbrlen(n, base_len);
 					}
 					else if (f[i] == 'x')
 					{
 						h = va_arg(ap, int);
 						base_len = 16;
 						base = hex;
-						num = h;
+						len = ft_nbrlen(h, base_len);
 					}
-					len = ft_nbrlen(n, base_len);
 					total_len = len;
 					if (p == 1)
 					{
