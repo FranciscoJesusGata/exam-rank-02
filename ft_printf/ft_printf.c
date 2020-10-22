@@ -50,11 +50,14 @@ int		ft_printf(const char *f, ...)
 	int	i = 0;
 	int	printed = 0;
 	int	len = 0;
+	int total_len = 0;
 	char *hex = "0123456789abcdef";
 	char *dec = "0123456789";
+	char *base;
+	int base_len = 0;
 	long int	n = 0;
 	unsigned int	h = 0;
-	char *str = NULL;
+	char *str;
 	int	w = 0;
 	int p = 0;
 	int p_l = 0;
@@ -70,6 +73,7 @@ int		ft_printf(const char *f, ...)
 			p_l = 0;
 			w = 0;
 			len = 0;
+			total_len = 0;
 			while(f[i])
 			{
 				i++;
@@ -77,32 +81,46 @@ int		ft_printf(const char *f, ...)
 				{
 					str = va_arg(ap, char *);
 					if (!str)
-						len = 6;
-					else
-						len = ft_strlen(str);
+						str = "(null)";
+					len = ft_strlen(str);
 					if (p == 1 && p_l < len)
 					{
 						len = p_l;
+						total_len = p_l;
 					}
 				}
-				else if (f[i] == 'd')
+				else if (f[i] == 'd' || f[i] == 'x')
 				{
-					n = va_arg(ap, int);
-					if (n > INT_MAX)
-						n = INT_MIN;
-					else if (n < INT_MIN)
-						n = INT_MAX;
-					if (n < 0)
+					if (f[i] == 'd')
 					{
-						printed += write(1, "-", 1);
-						n *= -1;
+						n = va_arg(ap, int);
+						if (n > INT_MAX)
+							n = INT_MIN;
+						else if (n < INT_MIN)
+							n = INT_MAX;
+						if (n < 0)
+						{
+							printed += write(1, "-", 1);
+							n *= -1;
+						}
+						base_len = 10;
+						base = dec;
 					}
-					len = ft_nbrlen(n, 10);
-				}
-				else if (f[i] == 'x')
-				{
-					h = va_arg(ap, int);
-					len = ft_nbrlen(h, 16);
+					else if (f[i] == 'x')
+					{
+						h = va_arg(ap, int);
+						base_len = 16;
+						base = hex;
+					}
+					len = ft_nbrlen(n, base_len);
+					total_len = len;
+					if (p == 1)
+					{
+						if (p_l == 0 && h == 0 && n == 0)
+							len = 0;
+						else if(p_l > len)
+							total_len += p_l;
+					}
 				}
 				else if (f[i] >= 48 && f[i] <= 57)
 				{
@@ -126,53 +144,28 @@ int		ft_printf(const char *f, ...)
 					}
 					i--;
 				}
-				if (f[i] == 's')
+				while (w > total_len)
 				{
-					while (w > len)
-					{
-						printed += write(1, " ", 1);
-						w--;
-					}
-					if(!str)
-						printed += write(1, "(null)", len);
-					else if (len > 0)
-						printed += write(1, str, len);
-					break ;
+					printed += write(1, " ", 1);
+					w--;
 				}
-				else if (f[i] == 'd' || f[i] == 'x')
+				if (len > 0)
 				{
-					if (p == 1)
+					if (f[i] == 's')
 					{
-						if (p_l == 0 && h == 0 && n == 0)
-							len = 0;
-						else if(p_l <= w && p_l > len)
-							w -= (p_l - len);
-						else if (p_l > w && p_l > len)
-							w = 0;
-						while (w > len)
-						{
-						printed += write(1, " ", 1);
-						w--;
-						}
+						printed += write(1, str, len);
+						break ;
+					}
+					else if (f[i] == 'd' || f[i] == 'x')
+					{
 						while (p_l > len)
 						{
 							printed += write(1, "0", 1);
 							p_l--;
 						}
+						ft_putnbr(h, base, &printed);
+						break ;
 					}
-					else
-					{
-						while (w > len)
-						{
-							printed += write(1, " ", 1);
-							w--;
-						}
-					}
-					if (f[i] == 'd' && len != 0)
-							ft_putnbr(n, dec, &printed);
-					else if (f[i] == 'x'&& len != 0)
-							ft_putnbr(h, hex, &printed);
-					break ;
 				}
 			}
 		}
