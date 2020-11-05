@@ -17,7 +17,7 @@ int		ft_strlen(char *s)
 	int	i;
 
 	i = 0;
-	while(s[i])
+	while(s[i] != '\0')
 		i++;
 	return(i);
 }
@@ -46,8 +46,9 @@ int		get_next_line(char **line)
 	int r;
 	char *buff = malloc(2);
 
-	if (!line || !(*line = malloc(sizeof(char))))
+	if (!line || !(*line = (char *)malloc(1)))
 		return (-1);
+	*line[0] = '\0';
 	buff[1] = '\0';
 	while ((r = read(0, buff, 1)) > 0)
 	{
@@ -56,5 +57,7 @@ int		get_next_line(char **line)
 		*line = ft_add_char(*line, *buff);
 	}
 	free(buff);
+	if (r == 0)
+		return (0);
 	return (r);
 }
